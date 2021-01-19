@@ -1,0 +1,12 @@
+{
+    "Auth": {
+        "region": "us-east-1",
+        "identityPoolId": "us-east-1:4ae59b0b-73ca-43db-be1a-8bad3bc4dfa8",
+        "userPoolId": "us-east-1_fFQHdW979",
+        "userPoolWebClientId": "4q9huf1rdjqa0025hie58ntlup"
+    },
+    "Storage": {
+        "bucket": "cintsa-cms.com",
+        "region": "us-east-1"
+    }
+}

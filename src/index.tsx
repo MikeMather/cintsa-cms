@@ -3,12 +3,15 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+const mountElement = document.createElement('div');
+mountElement.id = 'cintsa-cms-app-root';
+document.body.appendChild(mountElement);
 
 ReactDOM.render(
   <React.StrictMode>
     <App />
   </React.StrictMode>,
-  document.getElementById('root')
+  mountElement
 );
 
 // If you want to start measuring performance in your app, pass a function
