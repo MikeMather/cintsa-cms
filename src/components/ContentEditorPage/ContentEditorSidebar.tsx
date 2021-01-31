@@ -6,14 +6,24 @@ import { useContext } from "react";
 import { AppContext } from "../Router/Router";
 import { theme } from "../styled/Theme";
 import FrontMatterList from './FrontMatterList';
+import Button from '../Button/Button';
+import StorageHandler from '../../state/StorageHandler';
+import { useHistory } from 'react-router';
+import { PIECE_DELETED } from '../../state/Reducer';
 
 interface Props extends Piece {
   pieceName: string
-  onUpdate: Function
+  setPiece: {
+    (piece: Piece): void
+  }
+  onUpdate: {
+    (updates: Partial<Piece>): void
+  }
 }
 
-const ContentEditorSidebar = ({ pieceName, onUpdate, ...piece }: Props) => {
-  const { appState } = useContext(AppContext);
+const ContentEditorSidebar = ({ pieceName, onUpdate, setPiece, ...piece }: Props): JSX.Element => {
+  const { appState, dispatch } = useContext(AppContext);
+  const history = useHistory();
 
   const statusOptions = [
     {value: 'draft', label: 'Draft'},
@@ -47,11 +57,24 @@ const ContentEditorSidebar = ({ pieceName, onUpdate, ...piece }: Props) => {
     });
   };
 
+  const confirmDelete = () => {
+    const confirmed = confirm('Are you sure you want to delete this piece?');
+    if (confirmed) {
+      dispatch({
+        type: PIECE_DELETED,
+        payload: {
+          pieceName,
+          piece
+        }
+      });
+    }
+  }
+
   return (
     <ContentEditorSidebarContainer>
       <label>
           Slug
-          <p>{piece.slug}</p>
+          <a href={`/${piece.slug}`}>{piece.slug}</a>
       </label>
       <label>
         Status
@@ -71,7 +94,8 @@ const ContentEditorSidebar = ({ pieceName, onUpdate, ...piece }: Props) => {
             onChange={e => updateVals(e?.value || '', 'layout')}
         />
       </label>
-      <FrontMatterList {...piece} onUpdate={onUpdate} />
+      <FrontMatterList {...piece} onUpdate={setPiece} />
+      <Button color="danger" onClick={confirmDelete}>Delete Piece</Button>
     </ContentEditorSidebarContainer>
   )
 };

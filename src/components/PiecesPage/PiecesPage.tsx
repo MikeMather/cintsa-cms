@@ -1,10 +1,10 @@
-import react from 'react'
+import React from 'react'
 import PiecesSidebar from '../PiecesSidebar/PiecesSidebar';
 import Page from '../styled/Page';
 import Workflow from '../Workflow/Workflow';
 import { PiecesPageContainer } from './StyledPiecesPage';
 
-const PiecesPage = () => {
+const PiecesPage = (): JSX.Element => {
     
     return (
         <Page>

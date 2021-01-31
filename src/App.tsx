@@ -1,28 +1,28 @@
-import React from 'react';
+import React, { ChangeEvent } from 'react';
 import Theme from './components/styled/Theme';
 import Blanket from './components/styled/Blanket';
-import Modal from './components/styled/Modal';
-import { BrowserRouter, Switch, Route } from 'react-router-dom';
+import AppContainer from './components/styled/AppContainer';
+import { HashRouter, Switch, Route } from 'react-router-dom';
 import AppRouter from './components/Router/Router';
 import Authenticator from './components/Authenticator/Authenticor';
 
 
-const App = () => (
-  <BrowserRouter basename="/">
+const App = (): JSX.Element => (
+  <HashRouter basename="/" >
     <Switch>
       <Route path="/admin">
         <Theme>
           <Blanket>
-            <Modal>
+            <AppContainer>
               <Authenticator>
                 <AppRouter />
               </Authenticator>
-            </Modal>
+            </AppContainer>
           </Blanket>
         </Theme>
       </Route>
     </Switch>
-  </BrowserRouter>
+  </HashRouter>
 );
 
 export default App;

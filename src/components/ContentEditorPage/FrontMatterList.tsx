@@ -1,11 +1,13 @@
 import { Piece } from "../../types/types";
-import { ChangeEvent, useEffect, useState } from 'react';
+import React, { ChangeEvent, useEffect, useState } from 'react';
 import { FrontMatterContainer, FrontMatter } from './StyledContextEditor';
 import Button from "../Button/Button";
 import cogoToast from "cogo-toast";
+import { useLocation } from "react-router";
+import format from 'date-fns/format';
 
 interface Props extends Piece {
-  onUpdate: Function
+  onUpdate: { (piece: Piece): void }
 }
 
 interface FMKey {
@@ -13,14 +15,18 @@ interface FMKey {
   value: string;
 }
 
-const FrontMatterList = ({ onUpdate, ...data }: Props) => {
+const FrontMatterList = ({ onUpdate, ...piece }: Props): JSX.Element => {
 
   const [frontMatter, setFrontMatter] = useState<FMKey[]>([]);
+  const [localPiece, setLocalPiece] = useState<Piece>(piece);
+  const location = useLocation();
 
   const reservedKeys = ['content', 'layout', 'title', 'slug', 'id', 'status'];
 
   useEffect(() => {
-    const fm: FMKey[] = []
+    let fm: FMKey[] = []
+    setLocalPiece(piece);
+    const data = { ...piece }
     Object.keys(data).forEach((key: string) => {
       if (!reservedKeys.includes(key)) {
         fm.push({
@@ -29,18 +35,26 @@ const FrontMatterList = ({ onUpdate, ...data }: Props) => {
         });
       }
     });
-    setFrontMatter(fm);
-  }, []);
 
-  const update = async (fm: FMKey[]) => {
+    // add date as default extra front matter
+    if (/new$/.test(location.pathname)) {
+      fm = [
+        ...fm,
+        { key: 'date', value: Date.now().toString() }
+      ];
+    }
+    setFrontMatter(fm);
+  }, [piece.id]);
+
+  const update = async (fm: FMKey[], updatePiece: Piece) => {
     setFrontMatter(fm);
     const pieceVals: {[key: string]: string} = {};
     fm.forEach(({ key, value }: FMKey) => {
       pieceVals[key] = value;
     });
     onUpdate({
-      ...data,
-
+      ...updatePiece,
+      ...pieceVals
     })
   }
 
@@ -52,7 +66,7 @@ const FrontMatterList = ({ onUpdate, ...data }: Props) => {
       key: prop === 'key' ? formatFmKey(inputVal) : newFm[fmKeyIndex].key,
       value: prop === 'value' ? inputVal : newFm[fmKeyIndex].value,
     };
-    setFrontMatter(newFm);
+    update(newFm, localPiece);
   }
 
   const addKey = () => {
@@ -61,14 +75,17 @@ const FrontMatterList = ({ onUpdate, ...data }: Props) => {
       key: '',
       value: ''
     });
-    setFrontMatter(newFm);
+    update(newFm, localPiece);
   }
 
   const deleteKey = (key: string) => {
     const newFm = [ ...frontMatter ];
     const fmKeyIndex: number = frontMatter.findIndex((fm: FMKey) => fm.key === key);
     newFm.splice(fmKeyIndex, 1);
-    setFrontMatter(newFm);
+    const newPiece = { ...localPiece };
+    delete newPiece[key];
+    setLocalPiece(newPiece);
+    update(newFm, newPiece);
   }
 
   const formatFmKey = (key: string): string => {

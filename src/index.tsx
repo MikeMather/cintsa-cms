@@ -6,7 +6,6 @@ import reportWebVitals from './reportWebVitals';
 const mountElement = document.createElement('div');
 mountElement.id = 'cintsa-cms-app-root';
 document.body.appendChild(mountElement);
-
 ReactDOM.render(
   <React.StrictMode>
     <App />

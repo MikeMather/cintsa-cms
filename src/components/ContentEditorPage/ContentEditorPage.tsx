@@ -2,7 +2,7 @@ import { ContentEditorContainer, ContentEditorHeader, PieceEditorContainer } fro
 import Page from "../styled/Page";
 import { useParams } from "react-router-dom";
 import MarkdownEditor from "./MarkdownEditor";
-import { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { AppContext } from "../Router/Router";
 import { Piece } from '../../types/types';
 import ContentEditorSidebar from "./ContentEditorSidebar";
@@ -16,12 +16,11 @@ const emptyPiece: Piece = {
   title: '',
   layout: '',
   status: 'draft',
-  slug: '',
-  name: ''
+  slug: ''
 };
 
-const ContentEditorPage = () => {
-  const { pieceName, slug } = useParams<{ pieceName: string, slug: string }>();
+const ContentEditorPage = (): JSX.Element => {
+  const { pieceName, slug } = useParams<{ pieceName: string, slug: string | undefined }>();
   const { appState, dispatch } = useContext(AppContext);
   const [piece, setPiece] = useState<Piece>(emptyPiece);
   const history = useHistory();
@@ -33,7 +32,7 @@ const ContentEditorPage = () => {
       ));
       setPiece(post || emptyPiece);
     }
-  }, [pieceName, slug]);
+  }, [pieceName, slug, appState.pieces]);
 
   const slugify = (text: string): string => {
     const slug = text.toLowerCase()
@@ -42,7 +41,7 @@ const ContentEditorPage = () => {
     return `${pieceName}/${slug}`
   };
 
-  const updatePiece = (updates: Partial<Piece>) => {
+  const updatePiece = (updates: Partial<Piece>): void => {
     if (updates.title) {
       updates.slug = slugify(updates.title);
     }
@@ -53,21 +52,20 @@ const ContentEditorPage = () => {
   };
 
   const savePiece = (): void => {
-    cogoToast.loading('Saving piece...').then(() => {
-      dispatch({
-        type: PIECE_UPDATED,
-        payload: {
-          pieceName,
-          piece
-        }
-      })
-      history.push(`/admin/content/${pieceName}`);
+    dispatch({
+      type: PIECE_UPDATED,
+      payload: {
+        pieceName,
+        piece
+      }
     })
+    history.push(`/admin/pieces/${pieceName}`);
   }
 
   const editorProps = {
     pieceName,
-    onUpdate: updatePiece
+    onUpdate: updatePiece,
+    setPiece
   }
 
   return (
@@ -81,7 +79,7 @@ const ContentEditorPage = () => {
             {...editorProps}  
             {...piece}
           />
-          <MarkdownEditor onUpdate={updatePiece} content={piece.content} />
+          <MarkdownEditor onUpdate={updatePiece} content={piece.content} status={piece.status} />
         </PieceEditorContainer>
       </ContentEditorContainer>
     </Page>

@@ -16,6 +16,7 @@ export const WorkflowHeaderContainer = styled.div`
     h1 {
         font-weight: bold;
         margin: 0;
+        font-size: ${props => props.theme.spacing.xxl}
     }
 
     h1:first-letter {
@@ -26,6 +27,7 @@ export const WorkflowHeaderContainer = styled.div`
 export const WorkflowHeaderActions = styled.div`
     display: flex;
     justify-content: space-between;
+    align-items: center;
 
     input {
         width: 180px;
@@ -75,11 +77,21 @@ export const WorkflowCardContainer = styled.div`
     padding: ${props => props.theme.spacing.lg} ${props => props.theme.spacing.md};
     width: 100%;
     display: flex;
-    align-items: center;
+    flex-direction: column;
     margin-top: ${props => props.theme.spacing.lg};
-    text-decoration: none;
-    color: ${props => props.theme.colors.black};
-    font-weight: bold;
+
+    h4 {
+        text-decoration: none;
+        color: ${props => props.theme.colors.black};
+        font-weight: bold;
+        margin: 0;
+    }
+
+    small {
+        color: ${props => props.theme.colors.darkGrey} !important;
+        font-size: ${props => props.theme.spacing.md};
+        margin-top: ${props => props.theme.spacing.xs};
+    }
 
     svg {
         width: 25px;
@@ -93,4 +105,13 @@ export const WorkflowCardContainer = styled.div`
             fill: ${props => props.theme.colors.main};
         }
     }
+`;
+
+export const WorkflowPlaceholder = styled.div`
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
 `;

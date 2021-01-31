@@ -5,12 +5,12 @@ import { AppContext } from '../Router/Router';
 import { STATE_SET } from '../../state/Reducer';
 
 
-const Authenticator = ({ children }: { children: any }) => {
+const Authenticator = ({ children }: { children: any }): JSX.Element | null => {
   const [configured, setConfigured] = useState(false);
   const { appState, dispatch } = useContext(AppContext);
   
   useEffect(() => {
-    fetch('/aws-exports.json')
+    fetch('/assets/js/aws-exports.json')
     .then(res => res.json())
     .then(config => {
       const awsConf = {

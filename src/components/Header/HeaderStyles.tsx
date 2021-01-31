@@ -4,11 +4,32 @@ export const HeaderContainer = styled.div`
     width: 100%;
     height: 100%;
     display: flex;
+    justify-content: space-between;
     border-bottom: 1px solid ${props => props.theme.colors.mediumGrey};
     height: 80px;
     padding: 20px;
     box-sizing: border-box;
 `;
+
+export const NavContainer = styled.div`
+    display: flex;
+`;
+
+export const GlobalActionsContainer = styled.div`
+    display: flex;
+    svg {
+        cursor: pointer;
+        margin-left: ${props => props.theme.spacing.md};
+
+        path {
+            fill: ${props => props.theme.colors.darkGrey};
+        }
+        
+        &:hover {
+            fill: ${props => props.theme.colors.black};
+        }
+    }
+`
 
 type NavButtonProps = {
     active: boolean;

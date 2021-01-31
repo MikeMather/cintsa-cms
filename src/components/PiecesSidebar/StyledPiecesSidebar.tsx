@@ -5,7 +5,7 @@ export const SidebarHeader = styled.div`
     font-weight: bold;
     display: flex;
     justify-content: space-between;
-    align-items: baseline;
+    align-items: center;
     height: 42px;
     margin-top: ${props => props.theme.spacing.xl};
 

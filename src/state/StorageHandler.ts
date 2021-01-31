@@ -6,7 +6,7 @@ import { v4 as uuid } from 'uuid';
 class StorageHandler {
   
   fileHandler: FileContentHandler;
-  bucketUrl: string = '';
+  bucketUrl = '';
 
   constructor() {
     this.fileHandler = new FileContentHandler();
@@ -93,13 +93,19 @@ class StorageHandler {
     });
   }
 
+  async deletePiece(piece: Piece): Promise<void> {
+    return Storage.remove(`admin/pieces/${piece.slug}.md`).then((res: any) => {
+      return Storage.remove(`${piece.slug}/index.html`);
+    });
+  }
+
   async getStorageState(): Promise<InitialState> {
     const layouts = await this.getLayouts();
     const pieces = await this.getPieces();
     return Promise.all([layouts, pieces]).then(([ layouts, pieces ]) => {
       return { layouts, pieces };
     });
-  };
+  }
 
   async uploadImage(arrayBuffer: ArrayBuffer): Promise<{key: string}> {
     const blob = new Blob([arrayBuffer]);

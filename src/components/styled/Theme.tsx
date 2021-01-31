@@ -1,5 +1,7 @@
 import { ThemeProvider } from "styled-components";
-import styled from 'styled-components';
+import React from 'react';
+import styled, { createGlobalStyle } from 'styled-components';
+import reset from 'styled-reset'
 
 export const theme = {
     colors: {
@@ -34,6 +36,12 @@ const GlobalStyles = styled.div`
 
   a {
     text-decoration: none;
+    color: ${props => props.theme.colors.main};
+    cursor: pointer;
+
+    &:hover {
+      color: ${props => props.theme.colors.tertiary};
+    }
   }
 
   input {
@@ -48,6 +56,11 @@ const GlobalStyles = styled.div`
     outline: none;
   }
 
+  input::placeholder {
+    color: ${props => props.theme.colors.grey};
+    opacity: 0.4;
+  }
+
   label {
     font-weight: bold;
     font-size: ${propse => propse.theme.spacing.md};
@@ -57,7 +70,11 @@ const GlobalStyles = styled.div`
   }
 `;
 
-const Theme = ({ children }: { children: any }) => (  
+const Reset = createGlobalStyle`
+  ${reset}
+`
+
+const Theme = ({ children }: { children: any }): JSX.Element => (  
   <ThemeProvider theme={theme}>
     <GlobalStyles>{ children }</GlobalStyles>
   </ThemeProvider>

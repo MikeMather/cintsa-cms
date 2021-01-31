@@ -4,10 +4,19 @@ import ReactMde, { SaveImageHandler } from "react-mde";
 import * as Showdown from "showdown";
 import "react-mde/lib/styles/css/react-mde-all.css";
 import StorageHandler from '../../state/StorageHandler';
+import { Piece } from '../../types/types';
 
-const MarkdownEditor = ({ content, onUpdate }: { content: string, onUpdate: Function }) => {
+interface Props {
+  content: string;
+  status: string;
+  onUpdate: {
+    (updates: Partial<Piece>): void
+  }
+}
 
-  const [selectedTab, setSelectedTab] = useState<'write' | 'preview'>('write');
+const MarkdownEditor = ({ content, status, onUpdate }: Props): JSX.Element => {
+
+  const [selectedTab, setSelectedTab] = useState<'write' | 'preview'>(status === 'published' ? 'preview' : 'write');
 
   const updateContent = async (content: string) => {
     onUpdate({ content })
@@ -36,6 +45,7 @@ const MarkdownEditor = ({ content, onUpdate }: { content: string, onUpdate: Func
         }
         paste={{ saveImage }}
         minEditorHeight={400}
+        classes={{ textArea: 'markdown-editor-text', reactMde: 'markdown-editor'}}
       />
     </MarkdownEditorContainer>
   )

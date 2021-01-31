@@ -1,18 +1,21 @@
+
+import React from 'react';
 import { Piece } from "../../types/types";
 import { ChangeEvent, useContext, useEffect, useState } from "react"
 import { AppContext } from "../Router/Router"
 import { useParams } from 'react-router-dom';
-import { WorkflowContainer, Workflows } from "./StyledWorkflow";
+import { WorkflowContainer, WorkflowPlaceholder, Workflows } from "./StyledWorkflow";
 import WorkflowColumn from "./WorkflowColumn";
 import WorkflowHeader from "./WorkflowHeader";
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { PIECE_UPDATED } from "../../state/Reducer";
+import NoData from '../../icons/noData.svg';
 
-type Content = {
-    draft: Piece[],
-    review: Piece[],
-    published: Piece[],
+interface Content {
+    draft: Piece[]
+    review: Piece[]
+    published: Piece[]
     [key: string]: Piece[]
 };
 
@@ -20,7 +23,7 @@ interface RouteParams {
     piece: string
 }
 
-const Workflow = () => {
+const Workflow = (): JSX.Element => {
   const { appState, dispatch } = useContext(AppContext);
   const { piece } = useParams<RouteParams>()
   const [searchTerm, setSearchTerm] = useState<string>('');
@@ -32,11 +35,14 @@ const Workflow = () => {
   const [filteredContent, setFilteredContent] = useState<Content>(content);
 
   const getContent = (contentList: Piece[]): Content => {
-    const structuredContent: Content = contentList.reduce<Content>((main: Content, item: Piece) => {
-      main[item.status] = [ ...main[item.status], item ];
-      return main;
-    }, { draft: [], review: [], published: [] });
-    return structuredContent;
+    if (contentList) {
+      const structuredContent: Content = contentList.reduce<Content>((main: Content, item: Piece) => {
+        main[item.status] = [ ...main[item.status], item ];
+        return main;
+      }, { draft: [], review: [], published: [] });
+      return structuredContent;
+    }
+    return content;
   }
 
   const onSearch = (e: ChangeEvent<HTMLInputElement>): void => {
@@ -65,7 +71,7 @@ const Workflow = () => {
       setContent(structuredContent);
       setFilteredContent(filterContent(searchTerm, structuredContent));
     }
-  }, [appState, piece]);
+  }, [appState, piece, searchTerm]);
 
   const onPostMove = (event: { piece: Piece }, moveTo: string): void => {
     dispatch({
@@ -82,14 +88,24 @@ const Workflow = () => {
 
   return  (
     <WorkflowContainer>
-      <WorkflowHeader pieceName={piece} onSearch={onSearch} />
-      <Workflows>
-        <DndProvider backend={HTML5Backend}>
-          <WorkflowColumn content={filteredContent.draft} stage={'draft'} onPostMove={onPostMove} />
-          <WorkflowColumn content={filteredContent.review} stage={'review'} onPostMove={onPostMove} />
-          <WorkflowColumn content={filteredContent.published} stage={'published'} onPostMove={onPostMove} />
-        </DndProvider>
-      </Workflows>
+      {
+        !piece
+        ? <WorkflowPlaceholder>
+          <NoData width={300} height={300} />
+          <h2 style={{ marginTop: 25 }}>Select a piece to get started</h2>
+        </WorkflowPlaceholder>
+        : <>
+          <WorkflowHeader pieceName={piece} onSearch={onSearch} />
+          <Workflows>
+            <DndProvider backend={HTML5Backend}>
+              <WorkflowColumn content={filteredContent.draft} stage={'draft'} onPostMove={onPostMove} />
+              <WorkflowColumn content={filteredContent.review} stage={'review'} onPostMove={onPostMove} />
+              <WorkflowColumn content={filteredContent.published} stage={'published'} onPostMove={onPostMove} />
+            </DndProvider>
+          </Workflows>
+        </>
+      }
+      
     </WorkflowContainer>
   )
 }

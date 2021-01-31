@@ -1,5 +1,4 @@
 export interface Piece {
-    name: string;
     layout: string;
     title: string;
     status: string;
@@ -11,4 +10,4 @@ export interface Piece {
 export interface InitialState {
     pieces: {[key: string]: Piece[]}
     layouts: string[]
-};
+}

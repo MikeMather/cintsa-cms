@@ -3,11 +3,22 @@ import { ChangeEvent } from "react";
 import { Piece } from "../../types/types";
 import { ButtonContainer, TitleContainer } from "./StyledContextEditor";
 import { Link } from "react-router-dom";
-import { ReactComponent as ArrowLeft } from '../../icons/arrowLeft.svg';
+import ArrowLeft from '../../icons/arrowLeft.svg';
 import Button from '../Button/Button';
 
 
-const ContentEditorTitle = ({ pieceName, title, onUpdate, onSave }: { pieceName: string, title: string, onUpdate: Function, onSave: Function }) => {
+interface Props {
+  pieceName: string;
+  title: string;
+  onUpdate: {
+    (updates: Partial<Piece>): void
+  };
+  onSave: {
+    (): void
+  };
+}
+
+const ContentEditorTitle = ({ pieceName, title, onUpdate, onSave }: Props) => {
 
   const updateTitle = async (e: ChangeEvent<HTMLInputElement>) => {
     const { value }: { value: string } = e.target;
@@ -18,9 +29,9 @@ const ContentEditorTitle = ({ pieceName, title, onUpdate, onSave }: { pieceName:
 
   return (
     <TitleContainer>
-      <input defaultValue={title} name="title" type="text" onChange={updateTitle} />
+      <input placeholder="Title" defaultValue={title} name="title" type="text" onChange={updateTitle} />
       <ButtonContainer>
-        <Link to={`/admin/content/${pieceName}`}>
+        <Link to={`/admin/pieces/${pieceName}`}>
           <Button>Cancel</Button>
         </Link>
         <Button color="success" onClick={e => onSave()}>Save</Button>

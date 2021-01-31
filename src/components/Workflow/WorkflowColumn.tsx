@@ -1,19 +1,28 @@
+import React from 'react';
 import { Piece } from '../../types/types'
 import { WorkflowColumnContainer, WorkflowColumnHeader } from './StyledWorkflow'
 import WorkflowCard from './WorkflowCard';
 import { useDrop } from 'react-dnd'
 
-const WorkflowColumn = ({ content, stage, onPostMove }: { content: Piece[], stage: string, onPostMove: Function }) => {
+interface Props {
+  content: Piece[];
+  stage: string;
+  onPostMove: { 
+    (event: { piece: Piece }, moveTo: string): void 
+  }
+}
+
+const WorkflowColumn = ({ content, stage, onPostMove }: Props): JSX.Element => {
   const [{ isOver }, drop] = useDrop({
     accept: 'card',
-    drop: (x) => onDrop(x),
+    drop: (x: any) => onDrop(x),
     collect: (monitor) => ({
       isOver: !!monitor.isOver()
     })
   });
 
-  const onDrop = (piece: any) => {
-    onPostMove(piece, stage);
+  const onDrop = (event: { piece: Piece }) => {
+    onPostMove(event, stage);
   }
     
   const stageColors: {[key: string]: string} = {

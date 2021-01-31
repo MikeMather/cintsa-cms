@@ -4,10 +4,6 @@ import { v4 as uuid } from 'uuid';
 
 class FileContentHandler {
 
-  constructor() {
-
-  }
-
   /**
    * Convert a piece object into markdown
    * @param post 
