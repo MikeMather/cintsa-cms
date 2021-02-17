@@ -49,7 +49,7 @@ class StorageHandler {
             const pieceName = match[1];
             const filename = match[2];
             if (pieceName) {
-              const filePromise = this.getFile(key.key).then((post: Piece) => {
+              const filePromise = this.getMarkdownFile(key.key).then((post: Piece) => {
                 if (pieces[pieceName]) {
                   pieces[pieceName] = [ ...pieces[pieceName], post ];
                 }
@@ -72,10 +72,23 @@ class StorageHandler {
   }
 
   /**
-   * Get a file from S3 and return the Piece definition with markdown content
+   * Get all media files in admin/assets/img
+   */
+  async getMedia(): Promise<string[]> {
+    return Storage.list('assets/img').then((images: any[]) => {
+      return images.map((key: any) => key.key.split('assets/img/').pop())
+        .filter((key: string) => !!key);
+    }).catch(err => {
+      console.error(err);
+      return [];
+    });
+  }
+
+  /**
+   * Get a markdown file from S3 and return the Piece definition with markdown content
    * @param filePath S3 key of file
    */
-  async getFile(filePath: string): Promise<Piece> {
+  async getMarkdownFile(filePath: string): Promise<Piece> {
     return Storage.get(filePath, { download: true, cacheControl: 'no-cache' })
       .then((res: any) => {
         return res.Body.text();
@@ -83,6 +96,17 @@ class StorageHandler {
       .then((res: string) => {
         const fileData = this.fileHandler.markdownToPiece(res);
         return fileData;
+      });
+  }
+
+  /**
+   * Get a file from S3 and return the raw content
+   * @param filePath S3 key of file
+   */
+  async getFile(filePath: string): Promise<string> {
+    return Storage.get(filePath, { download: true, cacheControl: 'no-cache' })
+      .then((res: any) => {
+        return res.Body.text();
       });
   }
 
@@ -102,8 +126,9 @@ class StorageHandler {
   async getStorageState(): Promise<InitialState> {
     const layouts = await this.getLayouts();
     const pieces = await this.getPieces();
+    const media = await this.getMedia();
     return Promise.all([layouts, pieces]).then(([ layouts, pieces ]) => {
-      return { layouts, pieces };
+      return { layouts, pieces, media };
     });
   }
 
@@ -117,7 +142,6 @@ class StorageHandler {
       return err;
     })
   }
-
 }
 
 export default StorageHandler;

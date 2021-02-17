@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import mdeStyles from '!!raw-loader!react-mde/lib/styles/css/react-mde-all.css';
 
 export const ContentEditorContainer = styled.div`
   width: 100%;
@@ -45,7 +46,6 @@ export const ContentEditorSidebarContainer = styled.div`
     border: none;
     background: none;
     font-weight: normal;
-    height: 15px;
     padding-left: 0;
     font-size: ${props => props.theme.spacing.lg};
     margin: 0;
@@ -58,6 +58,7 @@ export const ContentEditorSidebarContainer = styled.div`
 export const MarkdownEditorContainer = styled.div`
   height: 100%;
   width: 75%;
+  ${mdeStyles}
 
   .markdown-editor {
     overflow: scroll;
@@ -82,6 +83,15 @@ export const MarkdownEditorContainer = styled.div`
     height: 100% !important;
   }
 
+  .mde-header {
+    background: ${props => props.theme.colors.lightestGrey};
+    color: ${props => props.theme.colors.black};
+  }
+
+  .mde-header .mde-tabs {
+    display: none;
+  }
+
   .mde-preview-content img {
     max-width: 100%;
   }
@@ -96,7 +106,6 @@ export const TitleContainer = styled.div`
 
   input {
     width: 70%;
-    height: 25px;
     font-size: ${props => props.theme.spacing.xl};
     font-weight: bold;
     padding: ${props => props.theme.spacing.md} ${props => props.theme.spacing.md};
@@ -147,3 +156,14 @@ export const FrontMatter = styled.div`
     margin-top: ${props => props.theme.spacing.md};
   }
 `
+
+export const StyledFloatingButton = styled.div`
+  position: absolute;
+  right: 5%;
+  bottom: 5%;
+`;
+
+export const PreviewFrame = styled.iframe`
+  width: 100%;
+  height: 100%;
+`;

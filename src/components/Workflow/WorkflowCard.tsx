@@ -14,7 +14,7 @@ const WorkflowCard = ({ piece }: { piece: Piece }): JSX.Element => {
     <Link to={`/admin/pieces/${piece.slug}`} ref={drag}>
       <WorkflowCardContainer>
         <h4>{piece.title}</h4>
-        <small>{format(piece.date, 'y-MM-dd')}</small>
+        <small>{format(new Date(piece.date), 'LLL d, y')}</small>
       </WorkflowCardContainer>
     </Link>
   )

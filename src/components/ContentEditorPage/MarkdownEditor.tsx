@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { MarkdownEditorContainer } from "./StyledContextEditor";
-import ReactMde, { SaveImageHandler } from "react-mde";
+import ReactMde, { SaveImageHandler, Command, getDefaultToolbarCommands } from "react-mde";
 import * as Showdown from "showdown";
-import "react-mde/lib/styles/css/react-mde-all.css";
 import StorageHandler from '../../state/StorageHandler';
 import { Piece } from '../../types/types';
+import ImageSelectModal from '../Modal/ImageSelectModal';
+import ImageAlbumIcon from '../../icons/imageAlbum.svg';
+
 
 interface Props {
   content: string;
@@ -14,9 +16,17 @@ interface Props {
   }
 }
 
+interface imageSelectOptions {
+  open: boolean
+  callback: {
+    (result: string): void
+  }
+}
+
 const MarkdownEditor = ({ content, status, onUpdate }: Props): JSX.Element => {
 
   const [selectedTab, setSelectedTab] = useState<'write' | 'preview'>(status === 'published' ? 'preview' : 'write');
+  const [imageSelectOptions, setImageSelectOptions] = useState<imageSelectOptions>({ open: false, callback: Function });
 
   const updateContent = async (content: string) => {
     onUpdate({ content })
@@ -33,20 +43,44 @@ const MarkdownEditor = ({ content, status, onUpdate }: Props): JSX.Element => {
     return false;
   };
 
+  const CommandIcon = () => (
+    <span role="img" aria-label="select-image">
+      <ImageAlbumIcon />
+    </span>
+  );
+
+  const addImageCommand: Command = {
+    icon: CommandIcon,
+    execute: opts => {
+      setImageSelectOptions({
+        open: true,
+        callback: (result: string) => {
+          opts.textApi.replaceSelection(`![](${window.location.origin}/assets/img/${result})`);
+          setImageSelectOptions({ ...imageSelectOptions, open: false });
+        }
+      })
+    }
+  };
+
   return (
     <MarkdownEditorContainer>
       <ReactMde
         value={content}
         onChange={updateContent}
-        selectedTab={selectedTab}
-        onTabChange={setSelectedTab}
         generateMarkdownPreview={markdown =>
             Promise.resolve(converter.makeHtml(markdown))
         }
         paste={{ saveImage }}
         minEditorHeight={400}
         classes={{ textArea: 'markdown-editor-text', reactMde: 'markdown-editor'}}
+        commands={{
+          addImageCommand
+        }}
+        toolbarCommands={[...getDefaultToolbarCommands(), ["addImageCommand"]]}
       />
+      {imageSelectOptions.open &&
+        <ImageSelectModal onClose={imageSelectOptions.callback} />
+      }
     </MarkdownEditorContainer>
   )
 };

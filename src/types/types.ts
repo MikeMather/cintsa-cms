@@ -10,4 +10,5 @@ export interface Piece {
 export interface InitialState {
     pieces: {[key: string]: Piece[]}
     layouts: string[]
+    media: string[]
 }

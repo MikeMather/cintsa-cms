@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Piece } from '../../types/types'
 import { WorkflowColumnContainer, WorkflowColumnHeader } from './StyledWorkflow'
 import WorkflowCard from './WorkflowCard';
@@ -13,6 +13,16 @@ interface Props {
 }
 
 const WorkflowColumn = ({ content, stage, onPostMove }: Props): JSX.Element => {
+  const [pieces, setPieces] = useState<Piece[]>(content);
+
+
+  useEffect(() => {
+    const sortedPieces = content.sort((a: Piece, b: Piece) => {
+      return new Date(b.date).getTime() - new Date(a.date).getTime();
+    });
+    setPieces([ ...sortedPieces ]);
+  }, [content])
+
   const [{ isOver }, drop] = useDrop({
     accept: 'card',
     drop: (x: any) => onDrop(x),
@@ -34,7 +44,7 @@ const WorkflowColumn = ({ content, stage, onPostMove }: Props): JSX.Element => {
   return (
     <WorkflowColumnContainer ref={drop} cardHovering={isOver}>
       <WorkflowColumnHeader color={stageColors[stage]}>{stage}</WorkflowColumnHeader>
-      {content.map((piece: Piece) => (
+      {pieces.map((piece: Piece) => (
         <WorkflowCard piece={piece} key={piece.slug} />
       ))}
     </WorkflowColumnContainer>

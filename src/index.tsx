@@ -3,13 +3,17 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import root from 'react-shadow/styled-components';
+
 const mountElement = document.createElement('div');
 mountElement.id = 'cintsa-cms-app-root';
 document.body.appendChild(mountElement);
 ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
+  <root.div style={{ height: '100%', width: '100%'}}>
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>
+  </root.div>,
   mountElement
 );
 

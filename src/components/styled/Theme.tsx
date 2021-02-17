@@ -1,10 +1,10 @@
 import { ThemeProvider } from "styled-components";
 import React from 'react';
-import styled, { createGlobalStyle } from 'styled-components';
-import reset from 'styled-reset'
+import styled from 'styled-components';
 
 export const theme = {
     colors: {
+        white: 'white',
         success: '#29BF12',
         danger: '#F07167',
         warning: '#FFA800',
@@ -26,13 +26,17 @@ export const theme = {
         xxl: '32px'
     },
     boxShadows: {
-        card: '0 4px 6px rgba(50,50,93,.11), 0 1px 3px rgba(0,0,0,.08);'
+        card: '0 4px 6px rgba(50,50,93,.11), 0 1px 3px rgba(0,0,0,.08);',
+        modal: '0 50px 100px -20px rgba(50,50,93,0.25),0 30px 60px -30px rgba(0,0,0,0.3);',
+        cardHover: '0 4px 6px rgba(50,50,93,.21), 0 1px 3px rgba(0,0,0,.28);',
+        floatingButton: '6px 6px 20px rgba(0, 0, 0, 0.2)'
     }
 };
 
 const GlobalStyles = styled.div`
   width: 100%;
   height: 100%;
+  line-height: normal;
 
   a {
     text-decoration: none;
@@ -70,11 +74,7 @@ const GlobalStyles = styled.div`
   }
 `;
 
-const Reset = createGlobalStyle`
-  ${reset}
-`
-
-const Theme = ({ children }: { children: any }): JSX.Element => (  
+const Theme = ({ children }: { children: any }): JSX.Element => (
   <ThemeProvider theme={theme}>
     <GlobalStyles>{ children }</GlobalStyles>
   </ThemeProvider>

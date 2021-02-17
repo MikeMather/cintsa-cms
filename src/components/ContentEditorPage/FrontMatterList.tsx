@@ -40,10 +40,10 @@ const FrontMatterList = ({ onUpdate, ...piece }: Props): JSX.Element => {
     if (/new$/.test(location.pathname)) {
       fm = [
         ...fm,
-        { key: 'date', value: Date.now().toString() }
+        { key: 'date', value: new Date().toString() }
       ];
     }
-    setFrontMatter(fm);
+    update(fm, piece);
   }, [piece.id]);
 
   const update = async (fm: FMKey[], updatePiece: Piece) => {
@@ -99,17 +99,17 @@ const FrontMatterList = ({ onUpdate, ...piece }: Props): JSX.Element => {
   return (
     <FrontMatter>
       <label>Additional data</label>
-      <p>You can add additional key-value data to be added to the front-matter of your post.</p>
+      <p>You can add additional key-value data to be added to the front-matter of your piece.</p>
       {
         !!frontMatter.length && frontMatter.map(({ key, value }: FMKey, index: number) => (
           <FrontMatterContainer key={index}>
             <label>Key
-              <input type="text" value={key} onChange={e => updateFmPropery('key', key, e)} />
+              <input type="text" value={key} disabled={key==='date'} onChange={e => updateFmPropery('key', key, e)} />
             </label>
             <label>Value
-              <input type="text" value={value} onChange={e => updateFmPropery('value', key, e)} />
+              <input type="text" value={value} disabled={key==='date'} onChange={e => updateFmPropery('value', key, e)} />
             </label>
-            <Button color="danger" onClick={e => deleteKey(key)}>x</Button>
+            {key !== 'date' && <Button color="danger" onClick={e => deleteKey(key)}>x</Button>}
           </FrontMatterContainer>
         ))
       }

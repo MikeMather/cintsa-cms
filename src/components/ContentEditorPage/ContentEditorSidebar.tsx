@@ -1,15 +1,13 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Piece } from "../../types/types";
 import { ContentEditorSidebarContainer } from "./StyledContextEditor";
-import Select from 'react-select'
 import { useContext } from "react";
 import { AppContext } from "../Router/Router";
-import { theme } from "../styled/Theme";
 import FrontMatterList from './FrontMatterList';
 import Button from '../Button/Button';
-import StorageHandler from '../../state/StorageHandler';
 import { useHistory } from 'react-router';
 import { PIECE_DELETED } from '../../state/Reducer';
+import { Select } from '../styled/Select';
 
 interface Props extends Piece {
   pieceName: string
@@ -23,6 +21,7 @@ interface Props extends Piece {
 
 const ContentEditorSidebar = ({ pieceName, onUpdate, setPiece, ...piece }: Props): JSX.Element => {
   const { appState, dispatch } = useContext(AppContext);
+  const [pieceCount, setPieceCount] = useState<number>(appState.pieces[pieceName].length);
   const history = useHistory();
 
   const statusOptions = [
@@ -34,28 +33,25 @@ const ContentEditorSidebar = ({ pieceName, onUpdate, setPiece, ...piece }: Props
   const layoutOptions = appState.layouts.map((layout: string) => ({
     value: layout, label: layout
   }))
-  const statusColors: {[key: string]: string}= {
-    draft: theme.colors.danger,
-    review: theme.colors.warning,
-    published: theme.colors.success
+  
+  const statusColors: {[key: string]: 'danger' | 'warning' | 'success'} = {
+    draft: 'danger',
+    review: 'warning',
+    published: 'success'
   }
-
-  const selectColorGenerator = (provided: any, state: any) => ({
-    ...provided,
-    color: statusColors[state.data.value] || theme.colors.main,
-    textTransform: 'capitalize'
-  })
-
-  const selectStyles = {
-    option: selectColorGenerator,
-    singleValue: selectColorGenerator
-  };
 
   const updateVals = async (value: string, key: string) => {
     onUpdate({
         [key]: value
     });
   };
+
+  // Go back if piece was deleted
+  useEffect(() => {
+    if (appState.pieces[pieceName].length < pieceCount) {
+      history.goBack();
+    }
+  }, [appState.pieces[pieceName].length])
 
   const confirmDelete = () => {
     const confirmed = confirm('Are you sure you want to delete this piece?');
@@ -78,21 +74,19 @@ const ContentEditorSidebar = ({ pieceName, onUpdate, setPiece, ...piece }: Props
       </label>
       <label>
         Status
-        <Select
-            value={{ label: piece.status, value: piece.status }}
-            options={statusOptions}
-            styles={selectStyles}
-            onChange={e => updateVals(e?.value || '', 'status')}
-        />
+        <Select onChange={e => updateVals(e.target.value, 'status')} value={piece.status} color={statusColors[piece.status]}>
+          {statusOptions.map((option: { value: string, label: string}) => (
+            <option key={option.value} value={option.value}>{option.label}</option>
+          ))}          
+        </Select>
       </label>
       <label>
         Layout
-        <Select
-            value={{ label: piece.layout, value: piece.layout }}
-            options={layoutOptions}
-            styles={selectStyles}
-            onChange={e => updateVals(e?.value || '', 'layout')}
-        />
+        <Select onChange={e => updateVals(e.target.value, 'layout')} value={piece.layout}>
+          {layoutOptions.map((option: { value: string, label: string}) => (
+            <option key={option.value} value={option.value}>{option.label}</option>
+          ))}          
+        </Select>
       </label>
       <FrontMatterList {...piece} onUpdate={setPiece} />
       <Button color="danger" onClick={confirmDelete}>Delete Piece</Button>

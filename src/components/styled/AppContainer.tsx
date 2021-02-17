@@ -1,11 +1,10 @@
 import styled from 'styled-components';
 
 const AppContainer = styled.div`
-    width: 90%;
-    height: 90%;
+    width: 95%;
+    height: 95%;
     background: white;
     overflow-y: auto;
-    background: white;
     pointer-events: all;
 `;
 

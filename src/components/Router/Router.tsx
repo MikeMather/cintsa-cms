@@ -11,7 +11,8 @@ import Loading from '../Loading/Loading';
 
 const initialState: InitialState = {
   pieces: {},
-  layouts: []
+  layouts: [],
+  media: []
 };
 
 interface ContextType {
@@ -44,7 +45,10 @@ const AppRouter = (): JSX.Element => {
       <Header />
       <Redirect from='/admin' to='/admin/pieces' />
       <Route exact path="/admin/pieces">
-        <PiecesPage />
+        {Object.keys(appState.pieces).length 
+          ? <Redirect from='/admin' to={`/admin/pieces/${Object.keys(appState.pieces)[0]}`} />
+          : <PiecesPage />
+        }
       </Route>
       <Route exact path="/admin/pieces/:piece">
         <PiecesPage />
