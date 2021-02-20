@@ -1,13 +1,13 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Amplify, Auth } from 'aws-amplify';
-import { AmplifyAuthenticator, AmplifySignOut } from "@aws-amplify/ui-react";
-import { AppContext } from '../Router/Router';
-import { STATE_SET } from '../../state/Reducer';
-
+import { Amplify, Auth, auth0SignInButton } from 'aws-amplify';
+import { AmplifyAuthenticator } from "@aws-amplify/ui-react";
+import { onAuthUIStateChange } from '@aws-amplify/ui-components';
+import { AppContext, initialState } from '../../App';
+import { AUTH_STATE_UPDATED, STATE_SET } from '../../state/Reducer';
 
 const Authenticator = ({ children }: { children: any }): JSX.Element | null => {
   const [configured, setConfigured] = useState(false);
-  const { appState, dispatch } = useContext(AppContext);
+  const { dispatch } = useContext(AppContext);
   
   useEffect(() => {
     fetch('/assets/js/aws-exports.json')
@@ -32,6 +32,28 @@ const Authenticator = ({ children }: { children: any }): JSX.Element | null => {
       Auth.configure(awsConf);
       setConfigured(true);
     }).catch(err => console.log(err))
+}, [])
+
+useEffect(() => {
+  return onAuthUIStateChange((nextAuthState: any, authData: any) => {
+    if (authData && nextAuthState === 'signedin') {
+      dispatch({
+        type: AUTH_STATE_UPDATED,
+        payload: {
+          username: authData.username,
+          signedIn: nextAuthState === 'signedin'
+        }
+      })
+    }
+    else if (nextAuthState === 'signedout') {
+      dispatch({
+        type: STATE_SET,
+        payload: {
+          ...initialState
+        }
+      })
+    }
+  });
 }, [])
 
   return (

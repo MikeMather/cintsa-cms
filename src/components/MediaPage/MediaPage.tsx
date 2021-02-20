@@ -1,42 +1,53 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { AmplifyS3Album } from "@aws-amplify/ui-react";
 import Page from '../styled/Page';
-import { AppContext } from '../Router/Router';
+import { AppContext } from '../../App';
 import Media from './Media';
-import { MediaContainer } from './StyledMedia';
+import { MediaActions, MediaContainer } from './StyledMedia';
+import UploadFileDrop from './UploadFileDrop';
+import Button from '../Button/Button';
+import { MEDIA_DELETED } from '../../state/Reducer';
 
-interface Media {
-  key: string
-  selected: boolean
-}
 
 const MediaPage = (): JSX.Element => {
 
-  const { appState } = useContext(AppContext);
-  const [media, setMedia] = useState<Media[]>([]);
+  const { appState, dispatch } = useContext(AppContext);
+  const [media, setMedia] = useState<string[]>([]);
+  const [selectedMedia, setSelectedMedia] = useState<string>('');
 
   useEffect(() => {
-    const images = appState.media.map((key: string) => ({
-      key,
-      selected: false
-    }));
-    setMedia(images);
-  }, []);
 
-  const onSelectMedia = (value: string, key: string): void => {
+    setMedia(appState.media);
+  }, [appState.media]);
+
+  const onSelectMedia = (key: string): void => {
     const newMedia = [ ...media ];
-    const imageIndex = media.findIndex((img: Media) => img.key === key);
-    newMedia[imageIndex] = { key, selected: !newMedia[imageIndex].selected };
+    const imageIndex = media.findIndex((img: string) => img === key);
     setMedia(newMedia);
+    setSelectedMedia(newMedia[imageIndex]);
+  }
+
+  const onDeleteMedia = (): void => {
+    if (selectedMedia) {
+      dispatch({
+        type: MEDIA_DELETED,
+        payload: selectedMedia
+      });
+    }
   }
 
   return (
     <Page>
-      <MediaContainer>
-        {media.map(({key, selected}: Media) => {
-            return <Media key={key} imgKey={key} selected={selected} onSelect={onSelectMedia} />
-        })}
-      </MediaContainer>
+      <MediaActions>
+        <small>Drop files to upload</small>
+        <Button color={'danger'} disabled={!selectedMedia} onClick={onDeleteMedia}>Delete</Button>
+      </MediaActions>
+      <UploadFileDrop>
+        <MediaContainer>
+          {media.map((key: string) => {
+              return <Media key={key} imgKey={key} selected={key === selectedMedia} onSelect={onSelectMedia} />
+          })}
+        </MediaContainer>
+      </UploadFileDrop>
     </Page>
   )
 }

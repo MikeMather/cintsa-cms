@@ -1,5 +1,5 @@
 import { Storage } from 'aws-amplify';
-import { InitialState, Piece } from '../types/types';
+import { defaultSettings, InitialState, Piece, Settings } from '../types/types';
 import FileContentHandler from './FileContentHandler';
 import { v4 as uuid } from 'uuid';
 
@@ -85,6 +85,18 @@ class StorageHandler {
   }
 
   /**
+   * Get all persisted user settings from localstorage
+   */
+  getSettings = (): Settings => {
+    let settings = defaultSettings;
+    const storedSettings = window.localStorage.getItem('cintsa-admin-settings');
+    if (storedSettings) {
+      settings = JSON.parse(storedSettings);
+    }
+    return settings;
+  }
+
+  /**
    * Get a markdown file from S3 and return the Piece definition with markdown content
    * @param filePath S3 key of file
    */
@@ -112,7 +124,12 @@ class StorageHandler {
 
   async savePiece(piece: Piece): Promise<Piece> {
     const content = this.fileHandler.pieceToMarkdown(piece);
-    return Storage.put(`admin/pieces/${piece.slug}.md`, content).then((res: any) => {
+    return Storage.put(`admin/pieces/${piece.slug}.md`, content)
+    .then((res: any) => {
+      return piece;
+    })
+    .catch((err: any) => {
+      console.error(err);
       return piece;
     });
   }
@@ -123,24 +140,35 @@ class StorageHandler {
     });
   }
 
-  async getStorageState(): Promise<InitialState> {
+  async getStorageState(): Promise<Partial<InitialState>> {
     const layouts = await this.getLayouts();
     const pieces = await this.getPieces();
     const media = await this.getMedia();
+    const settings = this.getSettings();
     return Promise.all([layouts, pieces]).then(([ layouts, pieces ]) => {
-      return { layouts, pieces, media };
+      return {
+        layouts, 
+        pieces, 
+        media,
+        settings
+      };
     });
   }
 
-  async uploadImage(arrayBuffer: ArrayBuffer): Promise<{key: string}> {
+  async uploadImage(arrayBuffer: ArrayBuffer, key?: string): Promise<{key: string}> {
     const blob = new Blob([arrayBuffer]);
-    return Storage.put(`assets/img/${uuid()}.jpg`, blob, {
+    const name = key || `${uuid()}.jpg`;
+    return Storage.put(`assets/img/${name}`, blob, {
         contentType: 'image/jpg'
     })
     .catch(err => {
       console.error(err);
       return err;
     })
+  }
+
+  async deleteImage(name: string): Promise<void> {
+    return Storage.remove(`assets/img/${name}`);
   }
 }
 

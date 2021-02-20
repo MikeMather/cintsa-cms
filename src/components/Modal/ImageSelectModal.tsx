@@ -1,9 +1,11 @@
 import { AmplifyS3Image } from '@aws-amplify/ui-react';
 import React, { useContext } from 'react';
 import { MediaItemContainer } from '../MediaPage/StyledMedia';
-import { AppContext } from '../Router/Router';
+import { AppContext } from '../../App';
 import { Modal, ImageModalContainer, ModalHeader, ModalTitle } from './StyledModal';
 import CloseIcon from '../../icons/close.svg';
+import Media from '../MediaPage/Media';
+import UploadFileDrop from '../MediaPage/UploadFileDrop';
 
 interface Props {
   onClose: {
@@ -18,17 +20,19 @@ const ImageSelectModal = ({ onClose }: Props): JSX.Element => {
   return (
     <Modal>
       <ModalHeader>
-        <ModalTitle>Select an Image</ModalTitle>
+        <div>
+          <ModalTitle>Select an Image</ModalTitle>
+          <small>Or drop a file to upload</small>
+        </div>
         <CloseIcon onClick={() => onClose('')} width={25}/>
       </ModalHeader>
-      <ImageModalContainer>
-        {appState.media.map((key: string) => (
-          <MediaItemContainer key={key} onClick={() => onClose(key)} >
-            <AmplifyS3Image imgKey={`assets/img/${key}`} />
-            {key}
-          </MediaItemContainer>
-        ))}
-      </ImageModalContainer>
+      <UploadFileDrop>
+        <ImageModalContainer>
+          {appState.media.map((key: string) => (
+            <Media key={key} imgKey={key} selected={false} onSelect={onClose} />
+          ))}
+        </ImageModalContainer>
+      </UploadFileDrop>
     </Modal>
   )
 };

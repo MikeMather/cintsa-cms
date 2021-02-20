@@ -45,7 +45,7 @@ const WorkflowColumn = ({ content, stage, onPostMove }: Props): JSX.Element => {
     <WorkflowColumnContainer ref={drop} cardHovering={isOver}>
       <WorkflowColumnHeader color={stageColors[stage]}>{stage}</WorkflowColumnHeader>
       {pieces.map((piece: Piece) => (
-        <WorkflowCard piece={piece} key={piece.slug} />
+        <WorkflowCard piece={piece} key={piece.slug} layout={'columns'} />
       ))}
     </WorkflowColumnContainer>
   )

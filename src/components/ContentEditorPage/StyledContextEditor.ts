@@ -33,8 +33,9 @@ export const PieceEditorContainer = styled.div`
   display: flex;
 `;
 
-export const ContentEditorSidebarContainer = styled.div`
-  width: 25%;
+export const ContentEditorSidebarContainer = styled.div<{collapsed: boolean}>`
+  width: ${props => props.collapsed ? '0%' : '25%'};
+  display: ${props => props.collapsed ? 'none' : 'block'};
   height: 100%;
   margin-right: ${props => props.theme.spacing.lg};
 
@@ -55,9 +56,9 @@ export const ContentEditorSidebarContainer = styled.div`
   }
 `;
 
-export const MarkdownEditorContainer = styled.div`
+export const MarkdownEditorContainer = styled.div<{fullWidth: boolean}>`
   height: 100%;
-  width: 75%;
+  width: ${props => props.fullWidth ? '100%' : '75%'};
   ${mdeStyles}
 
   .markdown-editor {

@@ -49,9 +49,15 @@ export const WorkflowColumnHeader = styled.div<{ color: string }>`
     border-radius: 4px;
 `;
 
-export const Workflows = styled.div`
+export const WorkflowColumns = styled.div`
     display: flex;
     justify-content: space-between;
+    height: 100%;
+    width: 100%;
+    position: relative;
+`;
+
+export const WorkflowRows = styled.div`
     height: 100%;
     width: 100%;
     position: relative;
@@ -70,15 +76,18 @@ export const WorkflowColumnContainer = styled.div<{ cardHovering: boolean}>`
     }  
 `;
 
-export const WorkflowCardContainer = styled.div`
+export const WorkflowCardContainer = styled.div<{ statusColor?: string}>`
     box-shadow: ${props => props.theme.boxShadows.card};
     box-sizing: border-box;
     cursor: pointer;
     padding: ${props => props.theme.spacing.lg} ${props => props.theme.spacing.md};
     width: 100%;
+    max-width: 600px;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     margin-top: ${props => props.theme.spacing.lg};
+    justify-content: space-between;
+    align-items: center;
 
     h4 {
         text-decoration: none;
@@ -93,16 +102,16 @@ export const WorkflowCardContainer = styled.div`
         margin-top: ${props => props.theme.spacing.xs};
     }
 
-    svg {
-        width: 25px;
-        margin-right: ${props => props.theme.spacing.md};
+    p {
+        color: ${props => props.statusColor ? props.theme.colors[props.statusColor] : props.theme.colors.black};
+        font-weight: bold;
+        text-transform: capitalize;
+        font-size: 14px;
     }
 
     &:hover {
-        color: ${props => props.theme.colors.main};
-
-        svg path {
-            fill: ${props => props.theme.colors.main};
+        h4 {
+            color: ${props => props.theme.colors.main};
         }
     }
 `;
@@ -114,4 +123,20 @@ export const WorkflowPlaceholder = styled.div`
     align-items: center;
     justify-content: center;
     flex-direction: column;
+`;
+
+export const LayoutOptions = styled.div`
+    display: flex;
+    padding: ${props => props.theme.spacing.sm} 0;
+`;
+
+export const LayoutOption = styled.div<{selected: boolean}>`
+    svg {
+        margin-right: ${props => props.theme.spacing.sm};
+        cursor: pointer;
+    }
+
+    svg path {
+        fill: ${props => props.selected ? props.theme.colors.black : props.theme.colors.mediumGrey};
+    }
 `;

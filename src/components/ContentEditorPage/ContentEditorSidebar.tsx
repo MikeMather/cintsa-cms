@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Piece } from "../../types/types";
 import { ContentEditorSidebarContainer } from "./StyledContextEditor";
 import { useContext } from "react";
-import { AppContext } from "../Router/Router";
+import { AppContext } from "../../App";
 import FrontMatterList from './FrontMatterList';
 import Button from '../Button/Button';
 import { useHistory } from 'react-router';
@@ -11,17 +11,15 @@ import { Select } from '../styled/Select';
 
 interface Props extends Piece {
   pieceName: string
-  setPiece: {
-    (piece: Piece): void
-  }
   onUpdate: {
     (updates: Partial<Piece>): void
   }
+  collapsed: boolean
 }
 
-const ContentEditorSidebar = ({ pieceName, onUpdate, setPiece, ...piece }: Props): JSX.Element => {
+const ContentEditorSidebar = ({ pieceName, onUpdate, collapsed, ...piece }: Props): JSX.Element => {
   const { appState, dispatch } = useContext(AppContext);
-  const [pieceCount, setPieceCount] = useState<number>(appState.pieces[pieceName].length);
+  const [pieceCount, setPieceCount] = useState<number>(appState.pieces[pieceName] ? appState.pieces[pieceName].length : 0);
   const history = useHistory();
 
   const statusOptions = [
@@ -48,10 +46,10 @@ const ContentEditorSidebar = ({ pieceName, onUpdate, setPiece, ...piece }: Props
 
   // Go back if piece was deleted
   useEffect(() => {
-    if (appState.pieces[pieceName].length < pieceCount) {
+    if (appState.pieces[pieceName] && appState.pieces[pieceName].length < pieceCount) {
       history.goBack();
     }
-  }, [appState.pieces[pieceName].length])
+  }, [appState.pieces[pieceName]])
 
   const confirmDelete = () => {
     const confirmed = confirm('Are you sure you want to delete this piece?');
@@ -67,7 +65,7 @@ const ContentEditorSidebar = ({ pieceName, onUpdate, setPiece, ...piece }: Props
   }
 
   return (
-    <ContentEditorSidebarContainer>
+    <ContentEditorSidebarContainer collapsed={collapsed} >
       <label>
           Slug
           <a href={`/${piece.slug}`}>{piece.slug}</a>
@@ -88,7 +86,7 @@ const ContentEditorSidebar = ({ pieceName, onUpdate, setPiece, ...piece }: Props
           ))}          
         </Select>
       </label>
-      <FrontMatterList {...piece} onUpdate={setPiece} />
+      {/* <FrontMatterList {...piece} onUpdate={onUpdate} /> */}
       <Button color="danger" onClick={confirmDelete}>Delete Piece</Button>
     </ContentEditorSidebarContainer>
   )

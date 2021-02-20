@@ -3,6 +3,7 @@ import styled from 'styled-components';
 interface ButtonProps {
     size?: 'small' | 'large' | undefined;
     color?: 'white' | 'primary' | 'danger' | 'success' | 'warning' | undefined;
+    disabled?: boolean;
 }
 
 const Button = styled.button<ButtonProps>`
@@ -18,8 +19,8 @@ const Button = styled.button<ButtonProps>`
     whitespace: none;
 
     &:hover {
-        cursor: pointer;
-        box-shadow: ${props => props.theme.boxShadows.cardHover};
+        cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
+        box-shadow: ${props => props.disabled ? props.theme.boxShadows.card : props.theme.boxShadows.cardHover};
     }
 `;
 

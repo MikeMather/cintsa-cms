@@ -15,7 +15,8 @@ export const theme = {
         lightestGrey: '#f5f7f9',
         lightGrey: '#F5F5F5',
         mediumGrey: '#E5E5E5',
-        darkGrey: '#6E6E6E'
+        darkGrey: '#6E6E6E',
+        lightBlue: '#0ba3e5'
     },
     spacing: {
         xs: '4px',
@@ -56,8 +57,8 @@ const GlobalStyles = styled.div`
     margin: ${propse => propse.theme.spacing.xs} 0;
   }
 
-  input:focus {
-    outline: none;
+  input:focus, button:focus, textarea:focus {
+    outline: none !important;
   }
 
   input::placeholder {
@@ -71,6 +72,10 @@ const GlobalStyles = styled.div`
     display: flex;
     flex-direction: column;
     margin-bottom: ${propse => propse.theme.spacing.lg};
+  }
+
+  small {
+    color: ${props => props.theme.colors.grey};
   }
 `;
 

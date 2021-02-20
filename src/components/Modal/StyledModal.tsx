@@ -17,7 +17,7 @@ export const Modal = styled.div`
 export const ModalTitle = styled.h1`
     font-weight: bold;
     font-size: ${props => props.theme.spacing.xl};
-    margin-bottom: ${props => props.theme.spacing.lg};
+    margin: 0;
     color: ${props => props.theme.colors.black};
 `
 

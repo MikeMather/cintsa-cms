@@ -4,13 +4,14 @@ import { FrontMatterContainer, FrontMatter } from './StyledContextEditor';
 import Button from "../Button/Button";
 import cogoToast from "cogo-toast";
 import { useLocation } from "react-router";
-import format from 'date-fns/format';
+import { v4 as uuid} from 'uuid';
 
 interface Props extends Piece {
-  onUpdate: { (piece: Piece): void }
+  onUpdate: { (piece: Partial<Piece>): void }
 }
 
 interface FMKey {
+  id: string;
   key: string;
   value: string;
 }
@@ -30,6 +31,7 @@ const FrontMatterList = ({ onUpdate, ...piece }: Props): JSX.Element => {
     Object.keys(data).forEach((key: string) => {
       if (!reservedKeys.includes(key)) {
         fm.push({
+          id: uuid(),
           key,
           value: data[key]
         });
@@ -40,52 +42,54 @@ const FrontMatterList = ({ onUpdate, ...piece }: Props): JSX.Element => {
     if (/new$/.test(location.pathname)) {
       fm = [
         ...fm,
-        { key: 'date', value: new Date().toString() }
+        { id: uuid(), key: 'date', value: new Date().toString() }
       ];
     }
-    update(fm, piece);
+    update(fm);
   }, [piece.id]);
 
-  const update = async (fm: FMKey[], updatePiece: Piece) => {
+  const update = async (fm: FMKey[]) => {
     setFrontMatter(fm);
     const pieceVals: {[key: string]: string} = {};
     fm.forEach(({ key, value }: FMKey) => {
       pieceVals[key] = value;
     });
     onUpdate({
-      ...updatePiece,
       ...pieceVals
     })
   }
 
-  const updateFmPropery = (prop: 'key' | 'value', key: string, e: ChangeEvent<HTMLInputElement>): void => {
+  const updateFmPropery = (prop: 'key' | 'value', id: string, e: ChangeEvent<HTMLInputElement>): void => {
     const newFm = [ ...frontMatter ];
     const inputVal = e.target.value;
-    const fmKeyIndex: number = frontMatter.findIndex((fm: FMKey) => fm.key === key);
+    const fmKeyIndex: number = frontMatter.findIndex((fm: FMKey) => fm.id === id);
     newFm[fmKeyIndex] = {
+      id,
       key: prop === 'key' ? formatFmKey(inputVal) : newFm[fmKeyIndex].key,
       value: prop === 'value' ? inputVal : newFm[fmKeyIndex].value,
     };
-    update(newFm, localPiece);
+    console.log(newFm[fmKeyIndex]);
+    update(newFm);
   }
 
   const addKey = () => {
     const newFm = [ ...frontMatter ];
     newFm.push({
+      id: uuid(),
       key: '',
       value: ''
     });
-    update(newFm, localPiece);
+    update(newFm);
   }
 
-  const deleteKey = (key: string) => {
+  const deleteKey = (id: string) => {
     const newFm = [ ...frontMatter ];
-    const fmKeyIndex: number = frontMatter.findIndex((fm: FMKey) => fm.key === key);
+    const fmKeyIndex: number = frontMatter.findIndex((fm: FMKey) => fm.id === id);
+    const deleted: FMKey = frontMatter[fmKeyIndex];
     newFm.splice(fmKeyIndex, 1);
     const newPiece = { ...localPiece };
-    delete newPiece[key];
-    setLocalPiece(newPiece);
-    update(newFm, newPiece);
+    delete newPiece[deleted.key];
+    update(newFm);
   }
 
   const formatFmKey = (key: string): string => {
@@ -101,15 +105,15 @@ const FrontMatterList = ({ onUpdate, ...piece }: Props): JSX.Element => {
       <label>Additional data</label>
       <p>You can add additional key-value data to be added to the front-matter of your piece.</p>
       {
-        !!frontMatter.length && frontMatter.map(({ key, value }: FMKey, index: number) => (
+        !!frontMatter.length && frontMatter.map(({ id, key, value }: FMKey, index: number) => (
           <FrontMatterContainer key={index}>
             <label>Key
-              <input type="text" value={key} disabled={key==='date'} onChange={e => updateFmPropery('key', key, e)} />
+              <input type="text" value={key} disabled={key==='date'} onChange={e => updateFmPropery('key', id, e)} />
             </label>
             <label>Value
-              <input type="text" value={value} disabled={key==='date'} onChange={e => updateFmPropery('value', key, e)} />
+              <input type="text" value={value} disabled={key==='date'} onChange={e => updateFmPropery('value', id, e)} />
             </label>
-            {key !== 'date' && <Button color="danger" onClick={e => deleteKey(key)}>x</Button>}
+            {key !== 'date' && <Button color="danger" onClick={e => deleteKey(id)}>x</Button>}
           </FrontMatterContainer>
         ))
       }

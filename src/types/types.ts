@@ -7,8 +7,27 @@ export interface Piece {
     [key: string]: any;
 }
 
+export interface Settings {
+    layout: {
+        workflowView: 'rows' | 'columns'
+    }
+}
+
+export interface AuthState {
+    signedIn: boolean,
+    username: string
+}
+
 export interface InitialState {
     pieces: {[key: string]: Piece[]}
     layouts: string[]
     media: string[]
+    settings: Settings,
+    auth: AuthState
+}
+
+export const defaultSettings: Settings = {
+    layout: {
+        workflowView: 'rows'
+    }
 }

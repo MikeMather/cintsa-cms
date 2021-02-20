@@ -1,7 +1,7 @@
 import React, { ChangeEvent, useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import Button from '../Button/Button';
-import { AppContext } from '../Router/Router';
+import { AppContext } from '../../App';
 import PieceCard from '../PieceCard/PieceCard';
 import { SidebarContainer, SidebarHeader, SidebarPieceList } from './StyledPiecesSidebar';
 import { PIECE_TYPE_ADDED } from '../../state/Reducer';

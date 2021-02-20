@@ -3,16 +3,14 @@ import Page from "../styled/Page";
 import { useParams } from "react-router-dom";
 import MarkdownEditor from "./MarkdownEditor";
 import React, { useContext, useEffect, useState } from "react";
-import { AppContext } from "../Router/Router";
+import { AppContext } from "../../App";
 import { Piece } from '../../types/types';
 import ContentEditorSidebar from "./ContentEditorSidebar";
 import ContentEditorTitle from "./ContentEditorTitle";
-import cogoToast from "cogo-toast";
 import { useHistory } from "react-router-dom";
 import { PIECE_UPDATED } from '../../state/Reducer';
 import FloatingButton from "../Button/FloatingButton";
 import FilePreview from './FilePreview';
-import StorageHandler from "../../state/StorageHandler";
 
 const emptyPiece: Piece = {
   id: '',
@@ -26,21 +24,21 @@ const ContentEditorPage = (): JSX.Element => {
   const { pieceName, slug } = useParams<{ pieceName: string, slug: string | undefined }>();
   const [previewMode, setPreviewMode] = useState<boolean>(false);
   const { appState, dispatch } = useContext(AppContext);
-  const [piece, setPiece] = useState<Piece>(emptyPiece);
-  const history = useHistory();
-
-  useEffect(() => {
-    if (!piece.layout) {
-      piece.layout = appState.layouts[0];
-    }
-  }, [])
+  const [piece, setPiece] = useState<Piece>({
+    ...emptyPiece,
+    layout: appState.layouts[0]
+  });
+  const [fullWidth, setFullWidth] = useState<boolean>(false);
+  const [unsavedChanges, setUnsavedChanges] = useState<boolean>(false);
 
   useEffect(() => {
     if (pieceName && appState.pieces[pieceName]) {
       const post = appState.pieces[pieceName].find((post: Piece) => (
           post.slug === `${pieceName}/${slug}`
       ));
-      setPiece(post || emptyPiece);
+      if (post) {
+        setPiece(post);
+      }
     }
   }, [pieceName, slug, appState.pieces]);
 
@@ -52,6 +50,7 @@ const ContentEditorPage = (): JSX.Element => {
   };
 
   const updatePiece = (updates: Partial<Piece>): void => {
+    setUnsavedChanges(true);
     if (updates.title) {
       updates.slug = slugify(updates.title);
     }
@@ -62,6 +61,7 @@ const ContentEditorPage = (): JSX.Element => {
   };
 
   const savePiece = (): void => {
+    setUnsavedChanges(false);
     dispatch({
       type: PIECE_UPDATED,
       payload: {
@@ -69,12 +69,6 @@ const ContentEditorPage = (): JSX.Element => {
         piece
       }
     })
-  }
-
-  const editorProps = {
-    pieceName,
-    onUpdate: updatePiece,
-    setPiece
   }
 
   const togglePreview = (): void => {
@@ -87,14 +81,28 @@ const ContentEditorPage = (): JSX.Element => {
         {!previewMode
           ? <>
             <ContentEditorHeader>
-            <ContentEditorTitle {...editorProps} title={piece.title} onSave={savePiece}/>
+            <ContentEditorTitle 
+              pieceName={pieceName} 
+              onUpdate={updatePiece}
+              title={piece.title} 
+              onSave={savePiece}
+              unsavedChanges={unsavedChanges}
+            />
             </ContentEditorHeader>
             <PieceEditorContainer>
               <ContentEditorSidebar 
-                {...editorProps}  
+                pieceName={pieceName} 
+                onUpdate={updatePiece}
+                collapsed={fullWidth}
                 {...piece}
               />
-              <MarkdownEditor onUpdate={updatePiece} content={piece.content} status={piece.status} />
+              <MarkdownEditor 
+                onUpdate={updatePiece} 
+                content={piece.content} 
+                status={piece.status} 
+                fullWidth={fullWidth} 
+                setFullWidth={setFullWidth}
+              />
             </PieceEditorContainer>
           </>
           : <FilePreview piece={piece} />
