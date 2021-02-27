@@ -12,6 +12,7 @@ export const Modal = styled.div`
     box-shadow: ${props => props.theme.boxShadows.modal};
     border-radius: 4px;
     padding: ${props => props.theme.spacing.xl};
+    z-index: 1;
 `;
 
 export const ModalTitle = styled.h1`

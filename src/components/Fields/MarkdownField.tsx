@@ -1,26 +1,21 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
-import { MarkdownEditorContainer } from "./StyledContextEditor";
+import React, { useContext, useState } from 'react';
+import { MarkdownEditorContainer } from "./StyledFields";
 import ReactMde, { SaveImageHandler, Command, getDefaultToolbarCommands } from "react-mde";
 import * as Showdown from "showdown";
 import StorageHandler from '../../state/StorageHandler';
 import { Piece } from '../../types/types';
 import ImageSelectModal from '../Modal/ImageSelectModal';
 import ImageAlbumIcon from '../../icons/imageAlbum.svg';
-import FullWidthIcon from '../../icons/fullScreen.svg';
 import { AppContext } from '../../App';
 import { MEDIA_ADDED } from '../../state/Reducer';
 
 
 interface Props {
-  content: string;
-  status: string;
-  fullWidth: boolean;
+  field: string
   onUpdate: {
     (updates: Partial<Piece>): void
   };
-  setFullWidth: {
-    (fullWidth: boolean): void
-  }
+  piece: Piece
 }
 
 interface imageSelectOptions {
@@ -30,18 +25,13 @@ interface imageSelectOptions {
   }
 }
 
-const MarkdownEditor = ({ content, status, onUpdate, fullWidth, setFullWidth }: Props): JSX.Element => {
+const MarkdownField = ({ field, piece, onUpdate }: Props): JSX.Element => {
 
   const { dispatch } = useContext(AppContext);
   const [imageSelectOptions, setImageSelectOptions] = useState<imageSelectOptions>({ open: false, callback: Function });
-  const fullWidthRef = useRef(fullWidth);
-
-  useEffect(() => {
-    fullWidthRef.current = fullWidth;
-  }, [fullWidth])
 
   const updateContent = async (content: string) => {
-    onUpdate({ content })
+    onUpdate({ [field]: content })
   }
   const converter = new Showdown.Converter();
 
@@ -65,40 +55,23 @@ const MarkdownEditor = ({ content, status, onUpdate, fullWidth, setFullWidth }: 
     </span>
   );
 
-  const FullWidthCommandIcon = () => (
-    <span role="img" aria-label="full-screen">
-      <FullWidthIcon />
-    </span>
-  )
-
   const addImageCommand: Command = {
     icon: AddImageIcon,
     execute: opts => {
       setImageSelectOptions({
         open: true,
         callback: (result: string) => {
-          opts.textApi.replaceSelection(`![](${window.location.origin}/assets/img/${result})`);
+          opts.textApi.replaceSelection(`![](/assets/img/${result})`);
           setImageSelectOptions({ ...imageSelectOptions, open: false });
         }
       })
     }
   };
 
-  const toggleFullWidth = (): void => {
-    setFullWidth(!fullWidthRef.current);
-  }
-
-  const fullWidthCommand: Command = {
-    icon: FullWidthCommandIcon,
-    execute: opts => {
-      toggleFullWidth();
-    }
-  };
-
   return (
-    <MarkdownEditorContainer fullWidth={fullWidth}>
+    <MarkdownEditorContainer>
       <ReactMde
-        value={content}
+        value={piece[field]}
         onChange={updateContent}
         generateMarkdownPreview={markdown =>
             Promise.resolve(converter.makeHtml(markdown))
@@ -107,9 +80,9 @@ const MarkdownEditor = ({ content, status, onUpdate, fullWidth, setFullWidth }: 
         minEditorHeight={400}
         classes={{ textArea: 'markdown-editor-text', reactMde: 'markdown-editor'}}
         commands={{
-          addImageCommand, fullWidthCommand
+          addImageCommand
         }}
-        toolbarCommands={[...getDefaultToolbarCommands(), ["addImageCommand", 'fullWidthCommand']]}
+        toolbarCommands={[...getDefaultToolbarCommands(), ["addImageCommand"]]}
       />
       {imageSelectOptions.open &&
         <ImageSelectModal onClose={imageSelectOptions.callback} />
@@ -118,4 +91,4 @@ const MarkdownEditor = ({ content, status, onUpdate, fullWidth, setFullWidth }: 
   )
 };
 
-export default MarkdownEditor;
+export default MarkdownField;

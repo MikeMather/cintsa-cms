@@ -1,5 +1,5 @@
 import { deletePiece, updatePiece } from "./Modifiers";
-import { InitialState, Piece } from "../types/types";
+import { InitialState, Piece, PieceSchema } from "../types/types";
 import StorageHandler from '../state/StorageHandler';
 import cogoToast from 'cogo-toast';
 import { PIECE_UPDATED, PIECE_DELETED, PIECE_TYPE_ADDED, MEDIA_ADDED, MEDIA_DELETED, SETTINGS_UPDATED } from './Reducer';
@@ -79,6 +79,21 @@ const persistSettings = (settings: Settings): void => {
   window.localStorage.setItem('cintsa-admin-settings', JSON.stringify(settings));
 }
 
+const savePieceSchema = (schema: PieceSchema): Promise<void> => {
+  const handler = new StorageHandler();
+  return cogoToast.loading(`Creating piece`)
+    .then(() => {
+      handler.savePieceSchema(schema)
+        .then(() => {
+          cogoToast.success(`Piece created`);
+        })
+        .catch((err: any) => {
+          console.error(err);
+          cogoToast.error(`Error creating piece`);
+        });
+  })
+}
+
 const DispatchMiddleware = (dispatch: Dispatch): MiddlewareReducer => {
   return (action: { type: string, payload: any }) => {
     switch (action.type) {
@@ -95,7 +110,9 @@ const DispatchMiddleware = (dispatch: Dispatch): MiddlewareReducer => {
           });
         return;
       case PIECE_TYPE_ADDED:
-        dispatch(action);
+        savePieceSchema(action.payload).then(() => {
+          dispatch(action);
+        })
         return;
       case MEDIA_ADDED:
         uploadImage(action.payload)

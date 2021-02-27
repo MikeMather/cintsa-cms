@@ -26,13 +26,13 @@ const Header = (): JSX.Element => {
     return (
         <HeaderContainer>
             <NavContainer>
-                <NavButton active={false}>
+                {/* <NavButton active={false}>
                     {isSubPath() && 
                         <a onClick={e => history.goBack()} >
                             <ArrowLeft />
                         </a>
                     }
-                </NavButton>
+                </NavButton> */}
                 <NavButton active={isPath(/pieces/)}>
                     <Link to='/admin/pieces'>
                         <BookIcon />

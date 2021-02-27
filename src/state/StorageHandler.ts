@@ -1,5 +1,5 @@
 import { Storage } from 'aws-amplify';
-import { defaultSettings, InitialState, Piece, Settings } from '../types/types';
+import { defaultSettings, InitialState, Piece, StatePieces, StatePiece, PieceSchema, Settings } from '../types/types';
 import FileContentHandler from './FileContentHandler';
 import { v4 as uuid } from 'uuid';
 
@@ -37,11 +37,11 @@ class StorageHandler {
   /**
    * Get all piece content from S3 in /admin/<pieceName>/<post name>
    */
-  async getPieces(): Promise<{[key: string]: Piece[]}> {
+  async getPieces(): Promise<StatePieces> {
     const requests: Promise<void>[] = [];
     return Storage.list('admin/pieces')
       .then((keys: any[]) => {
-        const pieces: {[key: string]: Piece[]} = {};
+        const pieces: StatePieces = {};
         keys.forEach((key => {
           const pathMatch =  /admin\/pieces\/(.*)\/(.*)?/;
           const match = pathMatch.exec(key.key)
@@ -49,14 +49,24 @@ class StorageHandler {
             const pieceName = match[1];
             const filename = match[2];
             if (pieceName) {
-              const filePromise = this.getMarkdownFile(key.key).then((post: Piece) => {
-                if (pieces[pieceName]) {
-                  pieces[pieceName] = [ ...pieces[pieceName], post ];
-                }
-                else {
-                  pieces[pieceName] = [post];
-                }
-              });
+              let filePromise;
+              if (!pieces[pieceName]) {
+                pieces[pieceName] = { 
+                  items: [], 
+                  schema: <PieceSchema>{} 
+                };
+              }
+              if (filename === 'schema.json') {
+                filePromise = this.getSchema(key.key).then((schema: PieceSchema) => {
+                  pieces[pieceName].schema = { ...schema };
+                })
+              }
+              else {
+                filePromise = this.getPiece(key.key).then((post: Piece) => {
+                  pieces[pieceName].items = [ ...pieces[pieceName].items, post ];
+                });
+              }
+              
               requests.push(filePromise);
             }
           }
@@ -100,14 +110,31 @@ class StorageHandler {
    * Get a markdown file from S3 and return the Piece definition with markdown content
    * @param filePath S3 key of file
    */
-  async getMarkdownFile(filePath: string): Promise<Piece> {
+  async getPiece(filePath: string): Promise<Piece> {
     return Storage.get(filePath, { download: true, cacheControl: 'no-cache' })
       .then((res: any) => {
         return res.Body.text();
       })
       .then((res: string) => {
-        const fileData = this.fileHandler.markdownToPiece(res);
+        const fileData = JSON.parse(res);
         return fileData;
+      });
+  }
+
+  /**
+   * Get a schema file
+   * @param filePath S3 key of file
+   */
+  async getSchema(filePath: string): Promise<PieceSchema> {
+    return Storage.get(filePath, { download: true, cacheControl: 'no-cache' })
+      .then((res: any) => {
+        return res.Body.text()
+      })
+      .then((content: string) => {
+        return JSON.parse(content);
+      })
+      .catch((err: any) => {
+        console.error(err);
       });
   }
 
@@ -123,8 +150,8 @@ class StorageHandler {
   }
 
   async savePiece(piece: Piece): Promise<Piece> {
-    const content = this.fileHandler.pieceToMarkdown(piece);
-    return Storage.put(`admin/pieces/${piece.slug}.md`, content)
+    const content = JSON.stringify(piece);
+    return Storage.put(`admin/pieces/${piece.slug}.json`, content)
     .then((res: any) => {
       return piece;
     })
@@ -134,10 +161,26 @@ class StorageHandler {
     });
   }
 
+  async savePieceSchema(schema: PieceSchema): Promise<PieceSchema> {
+    const content = JSON.stringify(schema);
+    return Storage.put(`admin/pieces/${schema.name}/schema.json`, content)
+    .then((res: any) => {
+      return schema;
+    })
+    .catch((err: any) => {
+      console.error(err);
+      return schema;
+    });
+  }
+
   async deletePiece(piece: Piece): Promise<void> {
-    return Storage.remove(`admin/pieces/${piece.slug}.md`).then((res: any) => {
+    return Storage.remove(`admin/pieces/${piece.slug}.json`).then((res: any) => {
       return Storage.remove(`${piece.slug}/index.html`);
     });
+  }
+
+  async deleteRenderedFile(path: string): Promise<void> {
+    return Storage.remove(`${path}/index.html`);
   }
 
   async getStorageState(): Promise<Partial<InitialState>> {

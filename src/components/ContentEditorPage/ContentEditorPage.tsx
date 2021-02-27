@@ -1,19 +1,19 @@
 import { ContentEditorContainer, ContentEditorHeader, PieceEditorContainer, StyledFloatingButton, PreviewFrame } from "./StyledContextEditor"
 import Page from "../styled/Page";
-import { useParams } from "react-router-dom";
-import MarkdownEditor from "./MarkdownEditor";
+import { useHistory, useParams } from "react-router-dom";
 import React, { useContext, useEffect, useState } from "react";
 import { AppContext } from "../../App";
-import { Piece } from '../../types/types';
+import { Piece, PieceSchema } from '../../types/types';
 import ContentEditorSidebar from "./ContentEditorSidebar";
 import ContentEditorTitle from "./ContentEditorTitle";
-import { useHistory } from "react-router-dom";
 import { PIECE_UPDATED } from '../../state/Reducer';
 import FloatingButton from "../Button/FloatingButton";
 import FilePreview from './FilePreview';
+import ContentEditor from "./ContentEditor";
+import { v4 as uuid } from 'uuid';
 
 const emptyPiece: Piece = {
-  id: '',
+  id: uuid(),
   title: '',
   layout: '',
   status: 'draft',
@@ -22,18 +22,29 @@ const emptyPiece: Piece = {
 
 const ContentEditorPage = (): JSX.Element => {
   const { pieceName, slug } = useParams<{ pieceName: string, slug: string | undefined }>();
+  const [schema, setSchema] = useState<PieceSchema>({} as PieceSchema);
   const [previewMode, setPreviewMode] = useState<boolean>(false);
   const { appState, dispatch } = useContext(AppContext);
+  const history = useHistory();
   const [piece, setPiece] = useState<Piece>({
     ...emptyPiece,
     layout: appState.layouts[0]
   });
-  const [fullWidth, setFullWidth] = useState<boolean>(false);
   const [unsavedChanges, setUnsavedChanges] = useState<boolean>(false);
 
   useEffect(() => {
+    // Piece was saved
+    if (unsavedChanges) {
+      setUnsavedChanges(false);
+      history.goBack();
+    }
+    
+  }, [appState.pieces[pieceName]?.items])
+
+  useEffect(() => {
     if (pieceName && appState.pieces[pieceName]) {
-      const post = appState.pieces[pieceName].find((post: Piece) => (
+      setSchema(appState.pieces[pieceName].schema);
+      const post = appState.pieces[pieceName].items.find((post: Piece) => (
           post.slug === `${pieceName}/${slug}`
       ));
       if (post) {
@@ -61,7 +72,6 @@ const ContentEditorPage = (): JSX.Element => {
   };
 
   const savePiece = (): void => {
-    setUnsavedChanges(false);
     dispatch({
       type: PIECE_UPDATED,
       payload: {
@@ -93,16 +103,9 @@ const ContentEditorPage = (): JSX.Element => {
               <ContentEditorSidebar 
                 pieceName={pieceName} 
                 onUpdate={updatePiece}
-                collapsed={fullWidth}
                 {...piece}
               />
-              <MarkdownEditor 
-                onUpdate={updatePiece} 
-                content={piece.content} 
-                status={piece.status} 
-                fullWidth={fullWidth} 
-                setFullWidth={setFullWidth}
-              />
+              <ContentEditor onUpdate={updatePiece} piece={piece} schema={schema} />
             </PieceEditorContainer>
           </>
           : <FilePreview piece={piece} />

@@ -31,6 +31,10 @@ export const theme = {
         modal: '0 50px 100px -20px rgba(50,50,93,0.25),0 30px 60px -30px rgba(0,0,0,0.3);',
         cardHover: '0 4px 6px rgba(50,50,93,.21), 0 1px 3px rgba(0,0,0,.28);',
         floatingButton: '6px 6px 20px rgba(0, 0, 0, 0.2)'
+    },
+    fonts: {
+      headers: '',
+      text: 'Poppins, Helvetica, sans-serif'
     }
 };
 
@@ -49,19 +53,20 @@ const GlobalStyles = styled.div`
     }
   }
 
-  input {
+  input, textarea {
     padding: 8px;
     border: 1px solid ${props => props.theme.colors.mediumGrey};
     color: ${props => props.theme.colors.darkGrey};
     border-radius: 4px;
-    margin: ${propse => propse.theme.spacing.xs} 0;
+    margin: ${props => props.theme.spacing.xs} 0;
+    font-family: ${props => props.theme.fonts.text}
   }
 
   input:focus, button:focus, textarea:focus {
     outline: none !important;
   }
 
-  input::placeholder {
+  input::placeholder, textarea::placeholder {
     color: ${props => props.theme.colors.grey};
     opacity: 0.4;
   }

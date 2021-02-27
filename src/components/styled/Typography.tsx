@@ -10,6 +10,7 @@ export const Text = styled.p<TextProps>`
     color: ${props => props.color ? props.theme.colors[props.color] : props.theme.colors.black};
     font-weight: ${props => props.weight ? props.weight : 'normal'};
     font-size: ${props => props.size === 'small' ? props.theme.spacing.md : props.size === 'large' ? props.theme.spacing.lg : props.theme.spacing.lg};
+    margin: 0;
 
     svg path {
         fill: ${props => props.color ? props.theme.colors[props.color] : props.theme.colors.black};

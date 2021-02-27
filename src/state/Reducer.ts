@@ -28,7 +28,10 @@ export const Reducer = (state: InitialState, action: { type: string, payload: an
         ...state,
         pieces: {
           ...state.pieces,
-          [action.payload.pieceName]: []
+          [action.payload.schema.name]: {
+            schema: action.payload.schema.name,
+            items: []
+          }
         }
       };
     case MEDIA_ADDED:

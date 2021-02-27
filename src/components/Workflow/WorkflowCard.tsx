@@ -3,7 +3,6 @@ import React from 'react';
 import { WorkflowCardContainer } from './StyledWorkflow';
 import { Link } from 'react-router-dom';
 import { useDrag } from 'react-dnd'
-import { format } from 'date-fns';
 
 const WorkflowCard = ({ piece, layout }: { piece: Piece, layout: 'rows' | 'columns' }): JSX.Element => {
   
@@ -22,7 +21,7 @@ const WorkflowCard = ({ piece, layout }: { piece: Piece, layout: 'rows' | 'colum
       <WorkflowCardContainer statusColor={statusColors[piece.status]}>
         <div>
           <h4>{piece.title}</h4>
-          <small>{format(new Date(piece.date), 'LLL d, y')}</small>
+          {/* <small>{format(new Date(piece.date), 'LLL d, y')}</small> */}
         </div>
         {layout === 'rows' && <p>{ piece.status }</p>}
       </WorkflowCardContainer>

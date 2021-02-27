@@ -3,7 +3,6 @@ import { Piece } from "../../types/types";
 import { ContentEditorSidebarContainer } from "./StyledContextEditor";
 import { useContext } from "react";
 import { AppContext } from "../../App";
-import FrontMatterList from './FrontMatterList';
 import Button from '../Button/Button';
 import { useHistory } from 'react-router';
 import { PIECE_DELETED } from '../../state/Reducer';
@@ -14,12 +13,11 @@ interface Props extends Piece {
   onUpdate: {
     (updates: Partial<Piece>): void
   }
-  collapsed: boolean
 }
 
-const ContentEditorSidebar = ({ pieceName, onUpdate, collapsed, ...piece }: Props): JSX.Element => {
+const ContentEditorSidebar = ({ pieceName, onUpdate, ...piece }: Props): JSX.Element => {
   const { appState, dispatch } = useContext(AppContext);
-  const [pieceCount, setPieceCount] = useState<number>(appState.pieces[pieceName] ? appState.pieces[pieceName].length : 0);
+  const [pieceCount, setPieceCount] = useState<number>(appState.pieces[pieceName] ? appState.pieces[pieceName].items.length : 0);
   const history = useHistory();
 
   const statusOptions = [
@@ -46,10 +44,10 @@ const ContentEditorSidebar = ({ pieceName, onUpdate, collapsed, ...piece }: Prop
 
   // Go back if piece was deleted
   useEffect(() => {
-    if (appState.pieces[pieceName] && appState.pieces[pieceName].length < pieceCount) {
+    if (appState.pieces[pieceName] && appState.pieces[pieceName].items.length < pieceCount) {
       history.goBack();
     }
-  }, [appState.pieces[pieceName]])
+  }, [appState.pieces[pieceName].items])
 
   const confirmDelete = () => {
     const confirmed = confirm('Are you sure you want to delete this piece?');
@@ -65,7 +63,7 @@ const ContentEditorSidebar = ({ pieceName, onUpdate, collapsed, ...piece }: Prop
   }
 
   return (
-    <ContentEditorSidebarContainer collapsed={collapsed} >
+    <ContentEditorSidebarContainer>
       <label>
           Slug
           <a href={`/${piece.slug}`}>{piece.slug}</a>
@@ -86,7 +84,6 @@ const ContentEditorSidebar = ({ pieceName, onUpdate, collapsed, ...piece }: Prop
           ))}          
         </Select>
       </label>
-      {/* <FrontMatterList {...piece} onUpdate={onUpdate} /> */}
       <Button color="danger" onClick={confirmDelete}>Delete Piece</Button>
     </ContentEditorSidebarContainer>
   )

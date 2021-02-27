@@ -31,19 +31,23 @@ const ContentEditorTitle = ({ pieceName, title, onUpdate, onSave, unsavedChanges
   };
   
   const cancel = () => {
-    const confirmedCancel = confirm('You have unsaved changes. Are you sure you want to cancel?');
-    if (confirmedCancel) {
+    if (unsavedChanges) {
+      const confirmedCancel = confirm('You have unsaved changes. Are you sure you want to cancel?');
+      if (confirmedCancel) {
+        history.push(`/admin/pieces/${pieceName}`)
+      }
+    }
+    else {
       history.push(`/admin/pieces/${pieceName}`)
     }
   }
-
-
 
   return (
     <TitleContainer>
       <input placeholder="Title" defaultValue={title} name="title" type="text" onChange={updateTitle} />
       <div>
         <ButtonContainer>
+          {unsavedChanges && <Text color="danger" size="small">Unsaved changes</Text>}
           <Button onClick={cancel}>Cancel</Button>
           <Button color="success" onClick={e => onSave()}>Save</Button>
         </ButtonContainer>

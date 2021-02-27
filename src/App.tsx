@@ -69,7 +69,7 @@ const App = (): JSX.Element => {
                 {loading 
                   ? <Loading />
                   : <Switch>
-                    <Route path="/admin">
+                    <Route path="/">
                       <AppRouter />
                     </Route>
                   </Switch>

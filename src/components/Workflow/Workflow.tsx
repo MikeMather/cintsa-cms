@@ -87,7 +87,7 @@ const Workflow = (): JSX.Element => {
 
   useEffect(() => {
     if (piece) {
-      const structuredContent = getContent(appState.pieces[piece])
+      const structuredContent = getContent(appState.pieces[piece].items || [])
       setContent(structuredContent);
       setFilteredContent(filterContent(searchTerm, structuredContent));
     }

@@ -14,9 +14,16 @@ export const ImageMask = styled.div`
   height: 80%;
   overflow: hidden;
   margin-bottom: ${props => props.theme.spacing.xs};
+  display: flex;
+  justify-content: center;
+  align-items: center;
 
   amplify-s3-image {
     --width: 100%;
+  }
+
+  img {
+    width: 100%;
   }
 `;
 
